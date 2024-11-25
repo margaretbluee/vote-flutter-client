@@ -14,7 +14,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
   final TextEditingController questionController = TextEditingController();
   final VotingService _votingService = VotingService();
 
-  // Add new voting option
+  //   new voting option
   void addOption() {
     setState(() {
       if (optionController.text.isNotEmpty) {
@@ -24,24 +24,24 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
     });
   }
 
-  // Remove a voting option
+  //remove a voting option
   void removeOption(int index) {
     setState(() {
-      VotingData().removeOption(index); // Remove option by index
+      VotingData().removeOption(index); // remove option by index
     });
   }
 
-  // Set the voting question
+  //set the voting question
   void setQuestion() {
     setState(() {
       if (questionController.text.isNotEmpty) {
-        VotingData().setVotingQuestion(questionController.text); // Set the voting question
+        VotingData().setVotingQuestion(questionController.text); // set the voting question
         questionController.clear();
       }
     });
   }
 
-  // Save the question and options to the backend
+  // save the question and options to the backend
   void saveQuestionAndOptions() async {
     final question = VotingData().votingQuestion;
     final options = VotingData().votingOptions;
@@ -53,7 +53,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
       return;
     }
 
-    // Step 1: Clear all previous questions and options
+    //  1: clear all previous questions and options
     final clearResponse = await _votingService.clearAllQuestionsAndOptions();
     if (clearResponse.containsKey('error')) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -62,7 +62,8 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
       return;
     }
 
-    // Step 2: Create the new question on the server
+
+    //   2: create the new question on the server
     final createResponse = await _votingService.createQuestion(question);
     print('Created question response: $createResponse');
     if (createResponse.containsKey('error')) {
@@ -74,7 +75,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
         const SnackBar(content: Text('Question created successfully')),
       );
 
-      // Get the questionId from the response after creating the question
+      // get the questionId from the response after creating the question
       final questionId = createResponse['questionId'];
       if (questionId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +84,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
         return;
       }
 
-      // Step 3: Add options for the newly created question
+      //   3: add options for the newly created question
       final addOptionsResponse = await _votingService.addOptionsToQuestion(questionId, options);
 
       if (addOptionsResponse.containsKey('error')) {
@@ -96,7 +97,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
         );
 
         setState(() {
-          // Clear the current voting data after successful creation
+          // cear the current voting data after successful creation
         //  VotingData().clearData();
         });
       }
@@ -111,7 +112,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Input for setting the voting question
+            // input for setting the voting question
             TextField(
               controller: questionController,
               decoration: const InputDecoration(
@@ -124,7 +125,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
               child: const Text("Set Question"),
             ),
             const SizedBox(height: 20),
-            // Display the current voting question
+            // display the current voting question
             Text(
               'Current Question: ${VotingData().votingQuestion}',
               style: const TextStyle(
@@ -133,7 +134,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
               ),
             ),
             const SizedBox(height: 20),
-            // Input for adding a new voting option
+            // input for adding a new voting option
             TextField(
               controller: optionController,
               decoration: const InputDecoration(
@@ -146,7 +147,7 @@ class _AdminSetVotingState extends State<AdminSetVoting> {
               child: const Text("Add Option"),
             ),
             const SizedBox(height: 20),
-            // List of current voting options
+            // list of current voting options
             Expanded(
               child: ListView.builder(
                 itemCount: VotingData().votingOptions.length,
