@@ -1,7 +1,34 @@
 import 'package:flutter/material.dart';
+import '../../services/attendees-service.dart';
+import '../../shared-data/voting-data.dart';
 
 class UserMarkAttendance extends StatelessWidget {
-  const UserMarkAttendance({super.key});
+  UserMarkAttendance({super.key});
+
+
+  final AttendeesService _attendeesService = AttendeesService();
+
+
+  void _markAttendance(BuildContext context) async {
+    try {
+
+      final userId = VotingData().getId();
+
+
+      // call the service to mark attendance as 'yes'
+      final response = await _attendeesService.markAttendance(userId);
+
+      // success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Attendance marked successfully!')),
+      );
+    } catch (e) {
+      // error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error marking attendance: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,13 +39,7 @@ class UserMarkAttendance extends StatelessWidget {
         child: Column(
           children: [
             ElevatedButton(
-              onPressed: () {
-                //TODO: call API
-                // Logic to mark attendance
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Attendance Marked Successfully')),
-                );
-              },
+              onPressed: () => _markAttendance(context),
               child: const Text("Mark as Present"),
             ),
           ],

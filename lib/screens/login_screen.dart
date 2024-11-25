@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meet_app/screens/register-screen.dart';
 import 'admin/admin-dashboard.dart';
 import 'user/user-dashboard.dart';
 import '../services/auth-service.dart'; //  AuthService
@@ -35,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // check the response
     if (response.containsKey('error')) {
-
       setState(() {
         _errorMessage = response['error'];
       });
@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (context) => const AdminDashboard()),
         );
       } else {
-        // nvigate to User Dashboard Screen
+        // navigate to User Dashboard Screen
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const UserDashboard()),
@@ -74,54 +74,74 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Login to Continue',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amberAccent,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: "Username",
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  _clearErrorMessage(); // clear error when user types
-                },
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  _clearErrorMessage(); // cear error when user types
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text("Login"),
-              ),
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(color: Colors.red),
+          child: SingleChildScrollView( // Wrap inside SingleChildScrollView to handle overflow
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Login to Continue',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.amberAccent,
                   ),
                 ),
-            ],
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: "Username",
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    _clearErrorMessage(); // clear error when user types
+                  },
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    _clearErrorMessage(); // clear error when user types
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _login,
+                  child: const Text("Login"),
+                ),
+                if (_errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                const SizedBox(height: 20),
+                // Redirect to Register screen if the user doesn't have an account
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    TextButton(
+                      onPressed: () {
+                        // navigate to the Register screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>   RegisterScreen()),
+                        );
+                      },
+                      child: const Text("Register"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
