@@ -1,63 +1,71 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-
+import 'package:flutter/services.dart'; // To load assets
 import '../shared-data/voting-data.dart';
- class AuthService {
-  static const String baseUrl = 'http://localhost:5000/api';
-// Register a user
-   Future<Map<String, dynamic>> registerUser(String username, String password) async {
-     final response = await http.post(
-       Uri.parse('http://localhost:5000/api/users/register'),
-       headers: {'Content-Type': 'application/json'},
-       body: json.encode({
-         'name': username,
-         'password': password,
-       }),
-     );
 
-     if (response.statusCode == 201) {
-       return json.decode(response.body); //return the response if registration is successful
-     } else {
-       throw Exception('Failed to register user');
-     }
-   }
+class AuthService {
+  static const String assetsPath = 'lib/assets/users.json'; // Path to the JSON file
 
-   // Log out a user (e.g., by removing the token from storage)
- //   Future<void> logoutUser() async {
- //
- //
- //     print('User logged out');
- //      }
- // }
+  // Register a user
+  Future<Map<String, dynamic>> registerUser(String username, String password) async {
+    final List<dynamic> users = await _loadUsers(); // Load users from the JSON file
+
+    // Check if the username already exists in the mock data
+    if (users.any((user) => user['name'] == username)) {
+      return {'error': 'Username already taken'};
+    }
+
+    // Simulate registration by adding a new user to the list
+    final newUser = {
+      'id': users.length + 1,
+      'name': username,
+      'password': password,
+      'role': 'user',  // Default role
+    };
+    users.add(newUser);  // Add the new user to the list
+
+    // Simulate saving the updated list (this is just in memory for now)
+    // In a real app, you'd need to persist the updated list somewhere
+
+    return {'id': newUser['id'], 'name': newUser['name'], 'role': newUser['role']};
+  }
+
+  // Login a user
   Future<Map<String, dynamic>> login(String username, String password) async {
-    final url = Uri.parse('http://localhost:5000/api/users/login');
+    final List<dynamic> users = await _loadUsers(); // Load users from the JSON file
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'name': username,
-        'password': password,
-      }),
+    // Find user with matching username and password
+    final user = users.firstWhere(
+          (user) => user['name'] == username && user['password'] == password,
+      orElse: () => null,
     );
 
-    if (response.statusCode == 200) {
-      // parse the response
-      final responseData = json.decode(response.body);
-
-      // save the user ID to the shared VotingData singleton
-      VotingData().setId(responseData['id']);  // save user ID
-
-
-      return responseData;
-    } else if (response.statusCode == 401) {
-      //   invalid credentials
+    if (user == null) {
       return {'error': 'Invalid username or password'};
-    } else {
-      //   other errors
-      return {'error': 'Something went wrong, please try again later.'};
     }
+
+    // Simulate successful login by returning user data
+    VotingData().setId(user['id']);  // Save user ID
+
+    return {
+      'id': user['id'],
+      'name': user['name'],
+      'role': user['role'],  // Include the role field in the response
+    };
+  }
+
+  Future<List<dynamic>> _loadUsers() async {
+    try {
+      final String jsonString = await rootBundle.loadString(assetsPath);
+      final List<dynamic> users = json.decode(jsonString);
+      return users;
+    } catch (e) {
+      print('Error loading users: $e');
+      return [];
+    }
+  }
+
+  // Log out a user (simulated with a print statement)
+  Future<void> logoutUser() async {
+    print('User logged out');
   }
 }

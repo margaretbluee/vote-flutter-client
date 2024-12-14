@@ -23,9 +23,10 @@ flutter:
   uses-material-design: true
 
   assets:
+    - lib/assets/users.json
+    - lib/assets/boards.json
+    - lib/assets/meetings.json
     - lib/assets/themes.json
     - lib/assets/members.json
     - lib/assets/voting_members.json
     - lib/assets/voting_options.json
-      
-     -lib/assets/meetings.json

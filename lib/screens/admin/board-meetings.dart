@@ -23,7 +23,7 @@ class _BoardMeetingsScreenState extends State<BoardMeetingsScreen> {
 
   Future<List<Map<String, String>>> _loadMeetings() async {
     final jsonString = await DefaultAssetBundle.of(context)
-        .loadString('assets/meetings.json');
+        .loadString('lib/assets/meetings.json');
     final List<dynamic> jsonList = jsonDecode(jsonString);
     return jsonList.map((e) => Map<String, String>.from(e)).toList();
   }
