@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meet_app/screens/register-screen.dart';
 import 'admin/admin-dashboard.dart';
+import 'admin/board-selection.dart';
 import 'user/user-dashboard.dart';
 import '../services/auth-service.dart'; //  AuthService
 
@@ -49,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // navigate to Admin Screen
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AdminDashboard()),
+          MaterialPageRoute(builder: (context) => const BoardSelection()),
         );
       } else {
         // navigate to User Dashboard Screen
