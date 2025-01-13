@@ -34,7 +34,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData(); // Load data when the widget is initialized
+    _loadData();
   }
 
   Future<void> _loadData() async {
@@ -97,6 +97,12 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
     });
   }
 
+  void _printResults() {
+    print("Selected Theme Category: $_selectedThemeCategory");
+    print("Selected Theme: $_selectedTheme");
+    print("Members: $members");
+  }
+
   Future<void> _showVotingDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
@@ -152,14 +158,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
                 onVoteChanged: _updateVote,
               ),
             ),
-          if (_selectedIndex == 1)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () => _showVotingDialog(context),
-                child: const Text("ΜΥΣΤΙΚΗ ΨΗΦΟΦΟΡΙΑ"),
-              ),
-            ),
+
           if (_showSaveButton)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -169,7 +168,15 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
                   print("Selected Theme: $_selectedTheme");
                   print("Members: $members");
                 },
-                child: const Text("SAVE"),
+                child: const Text("ΥΠΟΒΟΛΗ"),
+              ),
+            ),
+          if (_selectedIndex == 1)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () => _showVotingDialog(context),
+                child: const Text("ΜΥΣΤΙΚΗ ΨΗΦΟΦΟΡΙΑ"),
               ),
             ),
         ],
@@ -179,7 +186,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
-            _showSaveButton = false;
+            _showSaveButton = true;
           });
         },
         selectedItemColor: Colors.blue,
