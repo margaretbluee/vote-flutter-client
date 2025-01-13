@@ -8,11 +8,15 @@ environment:
   sdk: ^3.5.4
 
 dependencies:
+  archive: ^3.3.7
+  path_provider: ^2.0.15
   flutter:
     sdk: flutter
   http: ^0.13.4
   provider: ^6.1.2
   cupertino_icons: ^1.0.8
+
+
 
 dev_dependencies:
   flutter_test:

@@ -42,9 +42,9 @@ class _BoardMeetingsScreenState extends State<BoardMeetingsScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.teal.shade200, Colors.teal.shade50],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [Colors.teal.shade300, Colors.teal.shade50],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: FutureBuilder<List<Map<String, String>>>(
@@ -53,9 +53,9 @@ class _BoardMeetingsScreenState extends State<BoardMeetingsScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return const Center(child: Text("Error loading meetings"));
+              return _buildErrorState();
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No meetings available"));
+              return _buildEmptyState();
             }
 
             final meetings = snapshot.data!;
@@ -76,85 +76,122 @@ class _BoardMeetingsScreenState extends State<BoardMeetingsScreen> {
                       ),
                     );
                   },
-                  child: Card(
-                    margin: const EdgeInsets.only(bottom: 20.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text(
-                                "Αριθμός Συνεδρίασης:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                meeting["Αριθμός Συνεδρίασης"]!,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text(
-                                "Ημερομηνία:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                meeting["Ημερομηνία"]!,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text(
-                                "Τοποθεσία:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                meeting["Τοποθεσία"]!,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text(
-                                "Τύπος:",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                meeting["Τύπος"]!,
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: _buildMeetingCard(meeting),
                 );
               },
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildMeetingCard(Map<String, String> meeting) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 20.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      elevation: 8,
+      shadowColor: Colors.teal.shade200,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.teal.shade50],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow(
+              icon: Icons.numbers,
+              label: "Αριθμός Συνεδρίασης:",
+              value: meeting["Αριθμός Συνεδρίασης"]!,
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.calendar_today,
+              label: "Ημερομηνία:",
+              value: meeting["Ημερομηνία"]!,
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.location_on,
+              label: "Τοποθεσία:",
+              value: meeting["Τοποθεσία"]!,
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              icon: Icons.info,
+              label: "Τύπος:",
+              value: meeting["Τύπος"]!,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.teal.shade600, size: 20),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.black
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14,color: Colors.black),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 80, color: Colors.red.shade400),
+          const SizedBox(height: 20),
+          const Text(
+            "Error loading meetings",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.meeting_room_outlined,
+              size: 80, color: Colors.grey.shade500),
+          const SizedBox(height: 20),
+          const Text(
+            "No meetings available",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

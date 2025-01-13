@@ -25,65 +25,49 @@ class ThemesDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+       children: [
+        // Category Selection
         Row(
           children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onCategoryChanged("ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ"),
-                child: Container(
-                  height: 55,
-                  color: selectedCategory == "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ"
-                      ? Colors.teal.shade700
-                      : Colors.teal.shade300,
-                  child: const Center(
-                    child: Text(
-                      "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            _buildCategoryButton(
+              context: context,
+              label: "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ",
+              isSelected:
+              selectedCategory == "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ",
+              onTap: () => onCategoryChanged(
+                  "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ"),
             ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onCategoryChanged("ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ"),
-                child: Container(
-                  height: 55,
-                  color: selectedCategory == "ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ"
-                      ? Colors.teal.shade700
-                      : Colors.teal.shade300,
-                  child: const Center(
-                    child: Text(
-                      "ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            _buildCategoryButton(
+              context: context,
+              label: "ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ",
+              isSelected: selectedCategory == "ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ",
+              onTap: () => onCategoryChanged("ΘΕΜΑΤΑ ΗΜΕΡΙΣΙΑΣ ΔΙΑΤΑΞΗΣ"),
             ),
           ],
         ),
+        const SizedBox(height: 10),
+        // Theme Dropdown
         DropdownButton<String>(
           value: selectedTheme,
           isExpanded: true,
           items: themes[selectedCategory]!
-              .map((theme) => DropdownMenuItem(
-                    value: theme,
-                    child: Text(
-                      theme,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ))
+              .map(
+                (theme) => DropdownMenuItem(
+              value: theme,
+              child: Text(
+                theme,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          )
               .toList(),
           onChanged: (value) => onThemeChanged(value!),
+          underline: const SizedBox(),
+          dropdownColor: Colors.blueGrey,
         ),
+        const SizedBox(height: 20),
+        // Voting Members List
         Expanded(
           child: ListView.builder(
             itemCount: votingMembers.length,
@@ -94,32 +78,38 @@ class ThemesDropdown extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                margin: const EdgeInsets.symmetric(vertical: 8),
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            member["name"],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
-                        ],
+                      // Member Name
+                      Text(
+                        member["name"],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
+                      const SizedBox(height: 10),
+                      // Voting Dropdown
                       Row(
                         children: [
-                          const Text("ΨΗΦΟΣ: "),
+                          const Text(
+                            "ΨΗΦΟΣ:",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 10),
                           DropdownButton<String>(
                             value: member["vote"],
                             items: votingOptions
-                                .map((option) => DropdownMenuItem<String>(
-                                      value: option,
-                                      child: Text(option),
-                                    ))
+                                .map(
+                                  (option) => DropdownMenuItem<String>(
+                                value: option,
+                                child: Text(option),
+                              ),
+                            )
                                 .toList(),
                             onChanged: (value) =>
                                 onVoteChanged(index, value!),
@@ -134,6 +124,38 @@ class ThemesDropdown extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  // Helper Widget for Category Buttons
+  Widget _buildCategoryButton({
+    required BuildContext context,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 60,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.teal.shade700 : Colors.teal.shade300,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

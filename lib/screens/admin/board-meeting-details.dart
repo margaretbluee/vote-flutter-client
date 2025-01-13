@@ -23,18 +23,18 @@ class BoardMeetingDetailsScreen extends StatefulWidget {
 class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
   int _selectedIndex = 0;
   String _selectedTheme = "Έγκριση Προϋπολογισμού";
+  bool _showSaveButton = false; // State for SAVE button
+
   List<Map<String, dynamic>> members = [];
- // late List<Map<String, dynamic>> members;
-   Map<String, List<String>> themes = {};
-    List<String> votingOptions = [];
+  Map<String, List<String>> themes = {};
+  List<String> votingOptions = [];
 
   String _selectedThemeCategory = "ΘΕΜΑΤΑ ΣΥΜΠΛΗΡΩΜΑΤΙΚΗΣ ΔΙΑΤΑΞΗΣ";
-
 
   @override
   void initState() {
     super.initState();
-    _loadData();  // Load data when the widget is initialized
+    _loadData(); // Load data when the widget is initialized
   }
 
   Future<void> _loadData() async {
@@ -43,24 +43,12 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
       final themesData = await _loadJson('lib/assets/themes.json');
       final votingOptionsData = await _loadJson('lib/assets/voting_options.json');
 
-      // Print the loaded data for debugging
-      print("Members Data: $membersData");
-      print("Themes Data: $themesData");
-      print("Voting Options Data: $votingOptionsData");
-
-      // Initialize the members, themes, and votingOptions from the loaded data
       setState(() {
         members = List<Map<String, dynamic>>.from(membersData);
-
-        // Explicitly cast the values of themesData to List<String> to fix the type error
         themes = Map<String, List<String>>.from(
             themesData.map((key, value) => MapEntry(
                 key as String,
-                List<String>.from(value) // Ensure it's a List<String>
-            ))
-        );
-
-        // Explicitly cast the votingOptionsData to List<String> to fix the type error
+                List<String>.from(value))));
         votingOptions = List<String>.from(votingOptionsData);
       });
     } catch (e) {
@@ -68,8 +56,6 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
     }
   }
 
-
-  // Load JSON from assets
   Future<dynamic> _loadJson(String path) async {
     try {
       final String response = await rootBundle.loadString(path);
@@ -79,9 +65,6 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
       rethrow;
     }
   }
-
-
-
 
   void _updateMemberPresence(int index, bool value) {
     setState(() {
@@ -114,8 +97,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
     });
   }
 
-
-  Future<void> _showDialog(BuildContext context) async {
+  Future<void> _showVotingDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -124,13 +106,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
           content: const Text("Θέλετε να ξεκινήσετε μυστική ψηφοφορία;"),
           actions: [
             TextButton(
-              onPressed: () {
-                // Act as if "ΘΕΜΑΤΑ" was clicked
-                Navigator.of(context).pop(false);
-                setState(() {
-                  _selectedIndex = 1; // Switch to the "ΘΕΜΑΤΑ" screen
-                });
-              },
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text("ΟΧΙ"),
             ),
             TextButton(
@@ -143,43 +119,71 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
     );
 
     if (result == true) {
-      // Display voting screen
       Navigator.of(context).push(MaterialPageRoute(builder: (context) {
         return VotingScreen(votingOptions: votingOptions);
       }));
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Meeting: ${widget.meetingId}")),
-      body: _selectedIndex == 0
-          ? MembersWithPresence(
-        members: members,
-        onPresenceChanged: _updateMemberPresence,
-        onRemoteChanged: _updateMemberRemote,
-      )
-          : ThemesDropdown(
-        selectedCategory: _selectedThemeCategory,
-        selectedTheme: _selectedTheme,
-        themes: themes,
-        votingMembers: members, // Assuming members vote
-        votingOptions: votingOptions,
-        onThemeChanged: _updateTheme,
-        onCategoryChanged: _updateThemeCategory,
-        onVoteChanged: _updateVote,
+      body: Column(
+        children: [
+          if (_selectedIndex == 0)
+            Expanded(
+              child: MembersWithPresence(
+                members: members,
+                onPresenceChanged: _updateMemberPresence,
+                onRemoteChanged: _updateMemberRemote,
+              ),
+            )
+          else
+            Expanded(
+              child: ThemesDropdown(
+                selectedCategory: _selectedThemeCategory,
+                selectedTheme: _selectedTheme,
+                themes: themes,
+                votingMembers: members,
+                votingOptions: votingOptions,
+                onThemeChanged: _updateTheme,
+                onCategoryChanged: _updateThemeCategory,
+                onVoteChanged: _updateVote,
+              ),
+            ),
+          if (_selectedIndex == 1)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () => _showVotingDialog(context),
+                child: const Text("ΜΥΣΤΙΚΗ ΨΗΦΟΦΟΡΙΑ"),
+              ),
+            ),
+          if (_showSaveButton)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  print("Selected Theme Category: $_selectedThemeCategory");
+                  print("Selected Theme: $_selectedTheme");
+                  print("Members: $members");
+                },
+                child: const Text("SAVE"),
+              ),
+            ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
-          if (index == 1) {
-            _showDialog(context);
-          } else {
-            setState(() => _selectedIndex = index);
-          }
+          setState(() {
+            _selectedIndex = index;
+            _showSaveButton = false;
+          });
         },
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.group), label: "ΜΕΛΗ"),
           BottomNavigationBarItem(icon: Icon(Icons.topic), label: "ΘΕΜΑΤΑ"),
@@ -204,7 +208,6 @@ class _VotingScreenState extends State<VotingScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers for each voting option
     for (var option in widget.votingOptions) {
       _controllers[option] = TextEditingController();
     }
@@ -218,7 +221,6 @@ class _VotingScreenState extends State<VotingScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Display input for each voting option
             Expanded(
               child: ListView.builder(
                 itemCount: widget.votingOptions.length,
@@ -228,7 +230,7 @@ class _VotingScreenState extends State<VotingScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
                       children: [
-                        Text(option), // Display the voting option
+                        Text(option),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
@@ -248,7 +250,6 @@ class _VotingScreenState extends State<VotingScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Handle submission logic here (e.g., storing values, sending data)
                 _controllers.forEach((option, controller) {
                   print("$option: ${controller.text}");
                 });

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MembersWithPresence extends StatelessWidget {
@@ -14,58 +15,103 @@ class MembersWithPresence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: members.length,
-      itemBuilder: (context, index) {
-        final member = members[index];
-        return Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      member["name"],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ΠΑΡΟΥΣΙΕΣ'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: members.length,
+              itemBuilder: (context, index) {
+                final member = members[index];
+                return Card(
+                  elevation: 4,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          member["name"],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                          children: [
+                            const Text(
+                              "ΠΑΡΟΥΣΙΑ:",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Row(
+                              children: [
+                                const Text("ΟΧΙ"),
+                                Switch(
+                                  value: member["presence"],
+                                  onChanged: (value) =>
+                                      onPresenceChanged(index, value),
+                                  activeTrackColor: Colors.green[200],
+                                  activeColor: Colors.green,
+                                ),
+                                const Text("ΝΑΙ"),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                          children: [
+                            const Text(
+                              "ΑΠΟΜΑΚΡΥΣΜΕΝΗ ΠΑΡΟΥΣΙΑ:",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Checkbox(
+                              value: member["remote"],
+                              onChanged: (value) =>
+                                  onRemoteChanged(index, value!),
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Text("ΠΑΡΟΥΣΙΑ: "),
-                    Switch(
-                      value: member["presence"],
-                      onChanged: (value) =>
-                          onPresenceChanged(index, value),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text("ΑΠΟΜΑΚΡΥΣΜΕΝΗ ΠΑΡΟΥΣΙΑ: "),
-                    Checkbox(
-                      value: member["remote"],
-                      onChanged: (value) =>
-                          onRemoteChanged(index, value!),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                );
+              },
             ),
           ),
-        );
-      },
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                print("Members Data: $members");
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Data saved!")),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Υποβολή Παρουσιών",
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
