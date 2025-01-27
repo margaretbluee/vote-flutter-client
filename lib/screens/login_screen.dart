@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:meet_app/screens/register-screen.dart';
-import 'admin/admin-dashboard.dart';
 import 'admin/board-selection.dart';
 import 'user/user-dashboard.dart';
 import '../services/auth-service.dart'; //  AuthService
@@ -19,41 +18,34 @@ class _LoginScreenState extends State<LoginScreen> {
   String _errorMessage = "";
   final AuthService _authService = AuthService();
 
-  //   login request
   void _login() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    //   if username and password are empty
     if (username.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = "Username and Password cannot be empty";
+        _errorMessage = "Παρακαλώ συμπληρώστε όλα τα πεδία.";
       });
       return;
     }
 
-    //     AuthService ->  attempt login
     final response = await _authService.login(username, password);
 
-    // check the response
     if (response.containsKey('error')) {
       setState(() {
         _errorMessage = response['error'];
       });
     } else {
-      //  login is successful, navigate to the respective screen depending on the role
       setState(() {
-        _errorMessage = ""; // empty error message after successful login
+        _errorMessage = "";
       });
 
       if (response['role'] == 'admin') {
-        // navigate to Admin Screen
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const BoardSelection()),
         );
       } else {
-        // navigate to User Dashboard Screen
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const UserDashboard()),
@@ -62,7 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  //  clear error message when the user starts typing
   void _clearErrorMessage() {
     setState(() {
       _errorMessage = "";
@@ -71,73 +62,133 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: SingleChildScrollView( // Wrap inside SingleChildScrollView to handle overflow
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.teal.shade300, Colors.teal.shade50],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Logo/Icon
+                const Icon(
+                  Icons.lock_outline,
+                  size: 100,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 24),
+                // Title
                 const Text(
-                  'Login to Continue',
+                  'Σύνδεση',
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.amberAccent,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                // Subtitle
+                const Text(
+                  "Καλώς ήρθατε! Συνδεθείτε για να συνεχίσετε.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                // Username Field
                 TextField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: "Username",
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.person, color: Colors.teal),
+                    labelText: "Όνομα Χρήστη",
+                    labelStyle: const TextStyle(color: Colors.teal),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
-                  onChanged: (value) {
-                    _clearErrorMessage(); // clear error when user types
-                  },
+                  onChanged: (value) => _clearErrorMessage(),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                // Password Field
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
-                    _clearErrorMessage(); // clear error when user types
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _login,
-                  child: const Text("Login"),
-                ),
-                if (_errorMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      _errorMessage,
-                      style: const TextStyle(color: Colors.red),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock, color: Colors.teal),
+                    labelText: "Κωδικός",
+                    labelStyle: const TextStyle(color: Colors.teal),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
                   ),
+                  onChanged: (value) => _clearErrorMessage(),
+                ),
                 const SizedBox(height: 20),
-                // Redirect to Register screen if the user doesn't have an account
+                // Login Button
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal.shade700,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Σύνδεση",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Error Message
+                if (_errorMessage.isNotEmpty)
+                  Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                const SizedBox(height: 24),
+                // Register Redirect
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    const Text(
+                      "Δεν έχετε λογαριασμό;",
+                      style: TextStyle(color: Colors.white),
+                    ),
                     TextButton(
                       onPressed: () {
-                        // navigate to the Register screen
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>   RegisterScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => RegisterScreen()),
                         );
                       },
-                      child: const Text("Register"),
+                      child: const Text(
+                        "Εγγραφή",
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),

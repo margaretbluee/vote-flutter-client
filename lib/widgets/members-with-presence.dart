@@ -18,6 +18,8 @@ class MembersWithPresence extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('ΠΑΡΟΥΣΙΕΣ'),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -46,42 +48,38 @@ class MembersWithPresence extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               "ΠΑΡΟΥΣΙΑ:",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            Row(
-                              children: [
-                                const Text("ΟΧΙ"),
-                                Switch(
-                                  value: member["presence"],
-                                  onChanged: (value) =>
-                                      onPresenceChanged(index, value),
-                                  activeTrackColor: Colors.green[200],
-                                  activeColor: Colors.green,
-                                ),
-                                const Text("ΝΑΙ"),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween ,
-                          children: [
-                            const Text(
-                              "ΑΠΟΜΑΚΡΥΣΜΕΝΗ ΠΑΡΟΥΣΙΑ:",
-                              style: TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 13),
                             ),
                             Checkbox(
-                              value: member["remote"],
-                              onChanged: (value) =>
-                                  onRemoteChanged(index, value!),
-                              activeColor: Colors.blue,
+                              value: member["presence"],
+                              onChanged: (value) {
+                                onPresenceChanged(index, value!);
+                              },
+                              activeColor: Colors.teal[800],
                             ),
                           ],
                         ),
+                        if (member["presence"])
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "ΑΠΟΜΑΚΡΥΣΜΕΝΗ ΠΑΡΟΥΣΙΑ:",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              Checkbox(
+                                value: member["remote"],
+                                onChanged: (value) {
+                                  onRemoteChanged(index, value!);
+                                },
+                                activeColor: Colors.teal[400],
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -100,13 +98,19 @@ class MembersWithPresence extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+ backgroundColor: Colors.teal[700],
+                 shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)
                 ),
               ),
               child: const Text(
-                "Υποβολή Παρουσιών",
-                style: TextStyle(fontSize: 16),
+                "ΥΠΟΒΟΛΗ ΠΑΡΟΥΣΙΩΝ",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.8,
+                    color: Colors.white
+                ),
               ),
             ),
           ),

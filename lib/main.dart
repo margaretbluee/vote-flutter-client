@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const LoginScreen(),
-      theme: ThemeData.dark(),
+      theme: ThemeData.light(),
     );
   }
 }

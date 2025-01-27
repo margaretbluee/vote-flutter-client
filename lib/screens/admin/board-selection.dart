@@ -35,8 +35,11 @@ class _BoardSelectionState extends State<BoardSelection> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Επιλογή Χρήσης",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          "Επιλογή Συνεδρίου",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Makes the back arrow white
         ),
         centerTitle: true,
         backgroundColor: Colors.teal,
@@ -56,15 +59,6 @@ class _BoardSelectionState extends State<BoardSelection> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                "Παρακαλώ επιλέξτε μία επιλογή από τον παρακάτω κατάλογο:",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.teal,
-                ),
-                textAlign: TextAlign.center,
-              ),
               const SizedBox(height: 20),
               Expanded(
                 child: ListView.builder(

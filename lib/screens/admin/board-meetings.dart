@@ -34,10 +34,13 @@ class _BoardMeetingsScreenState extends State<BoardMeetingsScreen> {
       appBar: AppBar(
         title: Text(
           widget.boardName,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold, color : Colors.white)
         ),
         centerTitle: true,
         backgroundColor: Colors.teal,
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Makes the back arrow white
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
