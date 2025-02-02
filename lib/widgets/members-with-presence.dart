@@ -1,17 +1,79 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
-class MembersWithPresence extends StatelessWidget {
-  final List<Map<String, dynamic>> members;
-  final Function(int, bool) onPresenceChanged;
-  final Function(int, bool) onRemoteChanged;
+const List<Widget> toggleOptions = <Widget>[
+  Text('ΝΑΙ'),
+  Text('ΟΧΙ'),
+];
 
-  const MembersWithPresence({
-    Key? key,
-    required this.members,
-    required this.onPresenceChanged,
-    required this.onRemoteChanged,
-  }) : super(key: key);
+class MembersWithPresence extends StatefulWidget {
+  @override
+  _MembersWithPresenceState createState() => _MembersWithPresenceState();
+}
+
+class _MembersWithPresenceState extends State<MembersWithPresence> {
+  List<Map<String, dynamic>> members = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMembersFromFile();
+  }
+
+  Future<void> _loadMembersFromFile() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/members.json';
+      final file = File(filePath);
+
+      if (await file.exists()) {
+        final jsonString = await file.readAsString();
+        final List<dynamic> jsonData = jsonDecode(jsonString);
+        setState(() {
+          members = List<Map<String, dynamic>>.from(jsonData);
+        });
+        print("✅ Members loaded from: $filePath");
+      } else {
+        print("⚠️ members.json not found.");
+      }
+    } catch (e) {
+      print("❌ Error loading members: $e");
+    }
+  }
+
+  Future<void> saveVotingMembersToFile() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final votingFilePath = '${directory.path}/votingMembers.json';
+
+      // Filter only members where presence == true and keep only their names
+      final votingMembers = members
+          .where((member) => member["presence"] == true)
+          .map((member) => {"name": member["name"]}) // Keep only name
+          .toList();
+
+      final votingFile = File(votingFilePath);
+      await votingFile.writeAsString(jsonEncode(votingMembers));
+
+      print("✅ Voting members saved to: $votingFilePath");
+    } catch (e) {
+      print("❌ Error saving voting members: $e");
+    }
+  }
+
+  void updatePresence(int index, bool newValue) {
+    setState(() {
+      members[index]["presence"] = newValue;
+    });
+  }
+
+  void updateRemote(int index, bool newValue) {
+    setState(() {
+      members[index]["remote"] = newValue;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +90,7 @@ class MembersWithPresence extends StatelessWidget {
               itemCount: members.length,
               itemBuilder: (context, index) {
                 final member = members[index];
+
                 return Card(
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -54,12 +117,16 @@ class MembersWithPresence extends StatelessWidget {
                               "ΠΑΡΟΥΣΙΑ:",
                               style: TextStyle(fontSize: 13),
                             ),
-                            Checkbox(
-                              value: member["presence"],
-                              onChanged: (value) {
-                                onPresenceChanged(index, value!);
+                            ToggleButtons(
+                              isSelected: [member["presence"], !member["presence"]],
+                              onPressed: (int selectedIndex) {
+                                bool newValue = selectedIndex == 0;
+                                updatePresence(index, newValue);
                               },
-                              activeColor: Colors.teal[800],
+                              borderRadius: BorderRadius.circular(10),
+                              selectedColor: Colors.white,
+                              fillColor: Colors.teal[800],
+                              children: toggleOptions,
                             ),
                           ],
                         ),
@@ -74,7 +141,7 @@ class MembersWithPresence extends StatelessWidget {
                               Checkbox(
                                 value: member["remote"],
                                 onChanged: (value) {
-                                  onRemoteChanged(index, value!);
+                                  updateRemote(index, value!);
                                 },
                                 activeColor: Colors.teal[400],
                               ),
@@ -90,26 +157,26 @@ class MembersWithPresence extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: () {
-                print("Members Data: $members");
+              onPressed: () async {
+                await saveVotingMembersToFile();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Data saved!")),
+                  const SnackBar(content: Text("Η υποβολή ολοκληρώθηκε!")),
                 );
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
- backgroundColor: Colors.teal[700],
-                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)
+                backgroundColor: Colors.teal[700],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 "ΥΠΟΒΟΛΗ ΠΑΡΟΥΣΙΩΝ",
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                    color: Colors.white
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.8,
+                  color: Colors.white,
                 ),
               ),
             ),

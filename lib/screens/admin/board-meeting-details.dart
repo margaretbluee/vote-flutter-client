@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:meet_app/widgets/members-with-presence.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../widgets/themes-dropdown.dart';
 
@@ -39,24 +42,44 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
 
   Future<void> _loadData() async {
     try {
-      final membersData = await _loadJson('lib/assets/members.json');
+      // Get the app's document directory
+      final directory = await getApplicationDocumentsDirectory();
+      final votingFilePath = '${directory.path}/votingMembers.json';
+
+      // Read votingMembers.json from the documents directory
+      final File file = File(votingFilePath);
+
+      if (!await file.exists()) {
+        print("Error: votingMembers.json not found at $votingFilePath");
+        return;
+      }
+
+      final String jsonString = await file.readAsString();
+      final List<dynamic> membersData = jsonDecode(jsonString);
+
       final themesData = await _loadJson('lib/assets/themes.json');
-      final votingOptionsData = await _loadJson(
-          'lib/assets/voting_options.json');
+      final votingOptionsData = await _loadJson('lib/assets/voting_options.json');
 
       setState(() {
-        members = List<Map<String, dynamic>>.from(membersData);
+        // Directly load members without filtering by presence
+        members = membersData.map((member) => Map<String, dynamic>.from(member)).toList();
+
         themes = Map<String, List<String>>.from(
             themesData.map((key, value) =>
                 MapEntry(
                     key as String,
                     List<String>.from(value))));
+
         votingOptions = List<String>.from(votingOptionsData);
       });
+
+      print("Loaded members: $members"); // Debug log
     } catch (e) {
       print("Error loading JSON: $e");
     }
   }
+
+
 
   Future<dynamic> _loadJson(String path) async {
     try {
@@ -172,9 +195,6 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
                     ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: MembersWithPresence(
-                    members: members,
-                    onPresenceChanged: _updateMemberPresence,
-                    onRemoteChanged: _updateMemberRemote,
                   ),
                 )
                     : Padding(
@@ -204,6 +224,9 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
                         print("Selected Theme: $_selectedTheme");
                         print("Members: $members");
 
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Η υποβολή ολοκληρώθηκε!")),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade700,
@@ -225,6 +248,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
                     ),
                     ElevatedButton.icon(
                       onPressed: () => _showVotingDialog(context),
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal.shade700,
                         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
@@ -266,6 +290,9 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
             setState(() {
               _selectedIndex = index;
               _showSaveButton = index == 1;
+               if (index == 1) {
+                _loadData();
+              }
             });
           },
           selectedItemColor: Colors.white,
@@ -280,6 +307,7 @@ class _BoardMeetingDetailsScreenState extends State<BoardMeetingDetailsScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.topic),
               label: "ΘΕΜΑΤΑ",
+
             ),
           ],
         ),
@@ -426,6 +454,7 @@ class _VotingScreenState extends State<VotingScreen> {
                   onPressed: () {
                     _controllers.forEach((option, controller) {
                       print("$option: ${controller.text}");
+
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -442,7 +471,8 @@ class _VotingScreenState extends State<VotingScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
-                      color: Colors.white
+                      color: Colors.white,
+
                     ),
                   ),
                 ),
