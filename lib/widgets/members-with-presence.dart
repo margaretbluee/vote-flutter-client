@@ -162,6 +162,7 @@ class _MembersWithPresenceState extends State<MembersWithPresence> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Η υποβολή ολοκληρώθηκε!")),
                 );
+
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
